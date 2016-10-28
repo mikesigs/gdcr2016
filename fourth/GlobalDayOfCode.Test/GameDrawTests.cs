@@ -116,6 +116,16 @@ namespace GlobalDayOfCode.Test
                 "----\n" +
                 "-..-\n" +
                 "----\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(5, 0)
+                },
+                "---  ---\n" +
+                "-.-  -.-\n" +
+                "---  ---\n"
             }
         };
     }
