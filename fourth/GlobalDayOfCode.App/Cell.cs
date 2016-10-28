@@ -5,14 +5,12 @@ namespace GlobalDayOfCode.App
 {
     public class Cell
     {
-        private readonly IEnumerable<Cell> _neighbours;
-
         public Cell(int x, int y, bool isAlive, IEnumerable<Cell> board)
         {
             X = x;
             Y = y;
             IsAlive = isAlive;
-            _neighbours = board.Where(IsNeighbour);
+            Neighbours = board.Where(IsNeighbour);
         }
 
         public int X { get; }
@@ -21,7 +19,9 @@ namespace GlobalDayOfCode.App
 
         public bool IsAlive { get; }
 
-        public int NeighbourCount => _neighbours.Count();
+        public IEnumerable<Cell> Neighbours { get; }
+
+        public int LiveNeighbourCount => Neighbours.Count(n => n.IsAlive);
 
         private bool IsNeighbour(Cell n)
         {

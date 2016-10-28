@@ -61,5 +61,34 @@ namespace GlobalDayOfCode.App
                 })
                 .Aggregate("", (board, line) => board + string.Join("", line) + "\n");
         }
+
+        public Game Evolve()
+        {
+            var liveCellCoordsAfterEvolution = Cells
+                .Aggregate(new Coords[0], (acc, cell) =>
+                {
+                    if (IsAliveWithTwoOrThreeLiveNeighbours(cell) || 
+                        IsDeadCellWithExactlyThreeLiveNeighbours(cell))
+                    {
+                        return acc.Concat(new[]
+                                  {
+                                      new Coords(cell.X, cell.Y)
+                                  }).ToArray();
+                    }
+                    return acc;
+                });
+
+            return new Game(liveCellCoordsAfterEvolution);
+        }
+        
+        private static bool IsDeadCellWithExactlyThreeLiveNeighbours(Cell cell)
+        {
+            return !cell.IsAlive && cell.LiveNeighbourCount == 3;
+        }
+
+        private static bool IsAliveWithTwoOrThreeLiveNeighbours(Cell cell)
+        {
+            return cell.IsAlive && (cell.LiveNeighbourCount == 2 || cell.LiveNeighbourCount == 3);
+        }
     }
 }

@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EvolutionTests.cs" />
     <Compile Include="GameDrawTests.cs" />
     <Compile Include="NeighbourTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

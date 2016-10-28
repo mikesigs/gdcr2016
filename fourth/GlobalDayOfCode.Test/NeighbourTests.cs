@@ -19,7 +19,7 @@ namespace GlobalDayOfCode.Test
 
             // Assert
             var liveCells = game.Cells.Where(c => c.IsAlive);
-            liveCells.ShouldAllBe(c => c.NeighbourCount == 8);
+            liveCells.ShouldAllBe(c => c.Neighbours.Count() == 8);
         }
 
         [Fact]
@@ -36,8 +36,9 @@ namespace GlobalDayOfCode.Test
 
             // Assert
             var nonLiveNeighbour = game.Cells.First(c => !c.IsAlive);
-            nonLiveNeighbour.NeighbourCount.ShouldNotBe(8);
+            nonLiveNeighbour.Neighbours.Count().ShouldNotBe(8);
         }
+
 
         public static IEnumerable<object[]> NeighbourData => new[]
         {
