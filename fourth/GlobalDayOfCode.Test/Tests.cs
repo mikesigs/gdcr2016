@@ -6,6 +6,21 @@ using Xunit;
 
 namespace GlobalDayOfCode.Test
 {
+    /* 
+     * A live cell knows all of its neighbours
+     * An empty cell only knows it's live neighbours
+     * Seed the game with a sequence of x, y coordinates. (edited)
+     * Each coordinate denotes a live cell.
+     * When creating a live cell, pass it a list of its 8 neighbors, living and empty.
+     * The game maintains a list of all known cells,  living and dead.
+     * When creating a new live cell, query the known cells list for it's neighbors, and instantiate and store any new empty neighbors. (edited)
+     * Adding a neighbor to a live cell means the live cell is also added to the neighbour's neighbours list. (edited)
+     * That complete the seed step.
+     * Now each cell in the known cells list is told to evolve.
+     * This returns a list of x, y coordinates of all remaining live cells.
+     * The same process to seedbthe game will work to evolve it each time.
+     */
+
     public class Tests
     {
         [Fact]
@@ -22,7 +37,7 @@ namespace GlobalDayOfCode.Test
         }
 
         [Fact]
-        public void Game_with_one_starting_coords_has_nine_cells()
+        public void Game_with_one_starting_coords_has_9_cells()
         {
             // Arrange
             var seed = new[]
@@ -35,6 +50,41 @@ namespace GlobalDayOfCode.Test
 
             // Assert
             game.Cells.Count().ShouldBe(9);
+        }
+
+        [Fact]
+        public void Game_with_two_adjacent_starting_Y_coords_has_12_cells()
+        {
+            // Arrange
+            var seed = new[]
+            {
+                new Coords(0, 0),
+                new Coords(0, 1)
+            };
+
+            // Act
+            var game = Game.Create(seed);
+
+            // Assert
+            game.Cells.Count().ShouldBe(12);
+        }
+
+        [Fact]
+        public void Game_with_three_adjacent_starting_Y_coords_has_15_cells()
+        {
+            // Arrange
+            var seed = new[]
+            {
+                new Coords(0, 0),
+                new Coords(0, 1),
+                new Coords(0, 2)
+            };
+
+            // Act
+            var game = Game.Create(seed);
+
+            // Assert
+            game.Cells.Count().ShouldBe(15);
         }
 
         [Fact]
@@ -64,7 +114,7 @@ namespace GlobalDayOfCode.Test
         public void Game_with_one_starting_coords_has_1_live_cell_with_coords_matching_starting_coords(int x, int y)
         {
             // Arrange
-            var seed = new []
+            var seed = new[]
             {
                 new Coords(x, y)
             };
@@ -82,7 +132,7 @@ namespace GlobalDayOfCode.Test
             // Arrange
             var seed = new[]
             {
-                new Coords(0,0)
+                new Coords(0, 0)
             };
 
             // Act
@@ -254,15 +304,10 @@ namespace GlobalDayOfCode.Test
         }
 
         [Theory]
-        [InlineData(new [] { 1, 1 }, "---\n-.-\n---\n")]
-        [InlineData(new [] { 0, 1 }, "---\n-.-\n---\n")]
-        public void Can_draw_game_state(int[] coords, string expectedState)
+        [MemberData(nameof(DrawStateData))]
+        public void Can_draw_game_state(Coords[] seed, string expectedState)
         {
             // Arrange
-            var seed = new []
-            {
-                new Coords(coords[0], coords[1])
-            };
 
             // Act
             var game = Game.Create(seed);
@@ -270,6 +315,105 @@ namespace GlobalDayOfCode.Test
             // Assert
             game.Draw().ShouldBe(expectedState);
         }
+
+        public static IEnumerable<object[]> DrawStateData => new[]
+        {
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0)
+                },
+                "---\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 1)
+                },
+                "---\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(1, 0)
+                },
+                "---\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(1, 1)
+                },
+                "---\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(0, 1)
+                },
+                "---\n" +
+                "-.-\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(1, 0)
+                },
+                "----\n" +
+                "-..-\n" +
+                "----\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(2, 0),
+                },
+                "-----\n" +
+                "-.-.-\n" +
+                "-----\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(0, 2),
+                },
+                "---\n" +
+                "-.-\n" +
+                "---\n" +
+                "-.-\n" +
+                "---\n"
+            },
+            new object[]
+            {
+                new[]
+                {
+                    new Coords(0, 0), new Coords(0, 2), new Coords(1, 2)
+                },
+                "--- \n" +
+                "-.- \n" +
+                "----\n" +
+                "-..-\n" +
+                "----\n"
+            }
+        };
     }
 
     public class Game
@@ -281,18 +425,28 @@ namespace GlobalDayOfCode.Test
 
         private Game(IEnumerable<Coords> liveCellCoords)
         {
-            Cells = liveCellCoords.SelectMany(liveCell => new[]
-                                  {
-                                      new Cell { IsAlive = true, X = liveCell.X, Y = liveCell.Y },  // Live Cell
-                                      new Cell { X = liveCell.X - 1, Y = liveCell.Y - 1 },          // NW
-                                      new Cell { X = liveCell.X, Y = liveCell.Y - 1 },              // N
-                                      new Cell { X = liveCell.X + 1, Y = liveCell.Y - 1 },          // NE
-                                      new Cell { X = liveCell.X - 1, Y = liveCell.Y },              // E
-                                      new Cell { X = liveCell.X + 1, Y = liveCell.Y },              // W
-                                      new Cell { X = liveCell.X - 1, Y = liveCell.Y + 1},           // SW
-                                      new Cell { X = liveCell.X, Y = liveCell.Y + 1},               // S
-                                      new Cell { X = liveCell.X + 1, Y = liveCell.Y + 1}            // SE
-                                  }).ToList();
+            var liveCellCoordsList = liveCellCoords.ToList();
+
+            Cells = liveCellCoordsList
+                .SelectMany(coords => new[]
+                {
+                    coords,
+                    new Coords(coords.X - 1, coords.Y - 1), // NW
+                    new Coords(coords.X, coords.Y - 1), // N
+                    new Coords(coords.X + 1, coords.Y - 1), // NE
+                    new Coords(coords.X - 1, coords.Y), // E
+                    new Coords(coords.X + 1, coords.Y), // W
+                    new Coords(coords.X - 1, coords.Y + 1), // SW
+                    new Coords(coords.X, coords.Y + 1), // S
+                    new Coords(coords.X + 1, coords.Y + 1) // SE
+                })
+                .Distinct()
+                .Select(c => new Cell
+                {
+                    X = c.X,
+                    Y = c.Y,
+                    IsAlive = liveCellCoordsList.Any(coords => coords.X == c.X && coords.Y == c.Y)
+                });
         }
 
         public IEnumerable<Cell> Cells { get; }
@@ -324,13 +478,12 @@ namespace GlobalDayOfCode.Test
 
     public class Cell
     {
-        public Cell NW { get; }
         public int X { get; set; }
         public int Y { get; set; }
         public bool IsAlive { get; set; }
     }
 
-    public class Coords
+    public class Coords : IEquatable<Coords>
     {
         public Coords(int x, int y)
         {
@@ -338,7 +491,23 @@ namespace GlobalDayOfCode.Test
             Y = y;
         }
 
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int X { get; }
+        public int Y { get; }
+
+        public bool Equals(Coords other)
+        {
+            if (other == null) return false;
+            return other.X == X && other.Y == Y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj != null && Equals((Coords) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
+        }
     }
 }
