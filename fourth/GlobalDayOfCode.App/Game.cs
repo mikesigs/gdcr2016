@@ -29,12 +29,11 @@ namespace GlobalDayOfCode.App
                     new Coords(coords.X + 1, coords.Y + 1) // SE
                 })
                 .Distinct()
-                .Select(c => new Cell
-                {
-                    X = c.X,
-                    Y = c.Y,
-                    IsAlive = liveCellCoordsList.Any(coords => coords.X == c.X && coords.Y == c.Y)
-                });
+                .Select(c => new Cell(
+                    c.X, 
+                    c.Y, 
+                    isAlive: liveCellCoordsList.Any(coords => coords.X == c.X && coords.Y == c.Y), 
+                    board: Cells));
         }
 
         public IEnumerable<Cell> Cells { get; }
