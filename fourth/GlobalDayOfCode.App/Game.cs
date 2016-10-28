@@ -38,7 +38,7 @@ namespace GlobalDayOfCode.App
 
         public IEnumerable<Cell> Cells { get; }
 
-        public string Draw()
+        public string Draw(char liveCell = '.', char emptyCell = '-')
         {
             var minY = Cells.Min(c => c.Y);
             var maxY = Cells.Max(c => c.Y);
@@ -56,7 +56,7 @@ namespace GlobalDayOfCode.App
             return Cells
                 .Aggregate(startingBoard, (board, cell) =>
                 {
-                    board[cell.Y + Math.Abs(minY)][cell.X + Math.Abs(minX)] = cell.IsAlive ? '.' : '-';
+                    board[cell.Y + Math.Abs(minY)][cell.X + Math.Abs(minX)] = cell.IsAlive ? liveCell : emptyCell;
                     return board;
                 })
                 .Aggregate("", (board, line) => board + string.Join("", line) + "\n");
